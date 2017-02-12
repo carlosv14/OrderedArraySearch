@@ -1,0 +1,131 @@
+<html>
+<head>
+    <script type="text/javascript" src="./vis.js"></script>
+    <link href="./vis.css" rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+        #mynetwork {
+            width: 1320px;
+            height: 500px;
+            border: 1px solid lightgray;
+        }
+
+        .right {
+            position: absolute;
+            right: 50px;
+            top: 1%
+        }
+
+    </style>
+    
+    <script type="text/javascript" src="./utils.js"></script>
+    <script type="text/javascript" >
+        var nodes = null;
+        var edges = null;
+        var network = null;
+        var iteration = 0;
+        var arrangedIdArray = [];
+
+        function destroy() {
+            if (network !== null) {
+                network.destroy();
+                network = null;
+            }
+        }
+
+        function sleep(ms) {
+             return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function draw(){
+            destroy();
+            var quantity = document.getElementById('nodesquantity').value;
+            var display = document.getElementById('mynetwork');
+            var graphResult = generateGraph(quantity);
+            nodes = new vis.DataSet(graphResult.nodes);
+            edges = new vis.DataSet(graphResult.edges);
+           var data = {
+                nodes: nodes,
+                edges: edges
+            };
+            options = {
+                layout: {
+                    randomSeed : 774079
+                },
+                nodes: {
+                    shape: 'dot'
+                }
+
+            };
+            network = new vis.Network(display,data,options)
+        }
+
+        async function numberExistsRecursive(numbertosearch,first,last){
+            if(first > last){
+                return false;
+            }
+            var middle = Math.floor((first + last)/2);
+            iteration = middle;
+            searchAnimation();
+            await sleep(3000);
+            if(parseInt(nodes._data[middle].label)<numbertosearch){
+                removeNodes(first,middle);
+                return numberExistsRecursive(numbertosearch,middle+1,last);
+            }
+            else if(parseInt(nodes._data[middle].label)>numbertosearch){
+                removeNodes(middle,last);
+                return numberExistsRecursive(numbertosearch,first,middle-1);
+            }
+            return true;
+        }
+
+        function numberExists(elementToSearch){
+            return numberExistsRecursive(elementToSearch,0,nodes.length-1);
+        }
+
+       function removeNodes(from, to){
+            var nodesToDelete = [];
+            for(var i = from; i<=to; i++){
+                nodesToDelete.push(i);
+            }
+            nodes.remove(nodesToDelete);
+        }
+     
+        function searchAnimation(){
+             var nodesToSelect = [];
+             network.focus(String(nodes._data[iteration].id), {animation: {scale: 1.0,duration: 1000, easingFunction: 'easeInOutQuad'}});
+             nodesToSelect.push(nodes._data[iteration].id);
+             network.selectNodes(nodesToSelect,true);
+        }
+        
+
+        async function search(){
+            var elementToSearch = document.getElementById('numbertosearch').value;
+            var x = await numberExists(elementToSearch);
+            if(x === true){
+                var newColor = '#' + Math.floor((Math.random() * 255 * 255 * 255)).toString(16);
+                  nodes.update([{id:nodes._data[iteration].id, color:{background:newColor}}]);                  
+            }
+        }
+
+    </script>
+</head>
+<body>
+     <form onsubmit="draw(); return false;">
+        <label for="nodesquantity"> Cantidad de nodos: </label>        
+        <input id="nodesquantity" name="quantityofnodes" value="8" type="number">
+        <input type="submit" value="Crear arreglo">
+    </form>
+    <form class="right" onsubmit="search(); return false;">
+        <label for="numbertosearch"> Numero a buscar </label>
+        <input type="number" id="numbertosearch" >
+        <input type="submit" value="Encontrar numero">
+    </form>
+    <div id="mynetwork"></div>
+   
+
+
+
+
+</body>
+</html>
