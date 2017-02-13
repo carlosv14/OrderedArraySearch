@@ -4,10 +4,19 @@
     <link href="./vis.css" rel="stylesheet" type="text/css" />
 
     <style type="text/css">
+      body {
+            color: #d3d3d3;
+            font: 12pt arial;
+            background-color: #ffffff;
+            font-family: "Times New Roman", Times, serif;
+            color: cornflowerblue
+        }
+
         #mynetwork {
-            width: 1320px;
-            height: 500px;
-            border: 1px solid lightgray;
+            width: 1330;
+            height: 555px;
+            border: 1px solid #444444;
+            background-color: #dddddd;
         }
 
         .right {
@@ -53,7 +62,8 @@
                     randomSeed : 774079
                 },
                 nodes: {
-                    shape: 'dot'
+                    shape: 'dot',
+                    shadow : true
                 }
 
             };
@@ -96,6 +106,7 @@
              network.focus(String(nodes._data[iteration].id), {animation: {scale: 1.0,duration: 1000, easingFunction: 'easeInOutQuad'}});
              nodesToSelect.push(nodes._data[iteration].id);
              network.selectNodes(nodesToSelect,true);
+              nodes.update([{id:nodes._data[iteration].id,color:'rgb(255,168,7)'}]);    
         }
         
 
@@ -103,8 +114,10 @@
             var elementToSearch = document.getElementById('numbertosearch').value;
             var x = await numberExists(elementToSearch);
             if(x === true){
-                var newColor = '#' + Math.floor((Math.random() * 255 * 255 * 255)).toString(16);
-                  nodes.update([{id:nodes._data[iteration].id, color:{background:newColor}}]);                  
+                 nodes.update([{id:nodes._data[iteration].id,color:'rgb(115,223,0)'}]);      
+                 network.unselectAll();            
+            }else{
+                alert('Number not found');
             }
         }
 
@@ -112,14 +125,14 @@
 </head>
 <body>
      <form onsubmit="draw(); return false;">
-        <label for="nodesquantity"> Cantidad de nodos: </label>        
+        <label for="nodesquantity"> Nodes: </label>        
         <input id="nodesquantity" name="quantityofnodes" value="8" type="number">
-        <input type="submit" value="Crear arreglo">
+        <input type="submit" value="Create">
     </form>
     <form class="right" onsubmit="search(); return false;">
-        <label for="numbertosearch"> Numero a buscar </label>
+        <label for="numbertosearch"> Number to search: </label>
         <input type="number" id="numbertosearch" >
-        <input type="submit" value="Encontrar numero">
+        <input type="submit" value="Find number">
     </form>
     <div id="mynetwork"></div>
    
